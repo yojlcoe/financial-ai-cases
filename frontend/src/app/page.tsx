@@ -59,7 +59,7 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             ダッシュボード
           </h1>
-          <p className="text-gray-600 mt-1">AI・DX事例収集システムの概要</p>
+          <p className="text-gray-600 mt-1">金融AI事例調査システムの概要</p>
         </div>
       </div>
 

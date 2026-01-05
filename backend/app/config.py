@@ -20,6 +20,10 @@ class Settings(BaseSettings):
     # CORS
     cors_origins: str = "http://localhost:3000"
 
+    # Basic Auth
+    basic_auth_username: str = "admin"
+    basic_auth_password: str = "admin123"
+
     class Config:
         env_file = ".env"
 

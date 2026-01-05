@@ -1,10 +1,11 @@
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.config import get_settings
 from app.api.v1.router import api_router
 from app.core.database import engine, Base
+from app.security.basic_auth import require_basic_auth
 
 settings = get_settings()
 
@@ -39,7 +40,11 @@ app.add_middleware(
 )
 
 # APIルーター
-app.include_router(api_router, prefix="/api/v1")
+app.include_router(
+    api_router,
+    prefix="/api/v1",
+    dependencies=[Depends(require_basic_auth)],
+)
 
 
 @app.get("/")

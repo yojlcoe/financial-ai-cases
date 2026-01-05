@@ -65,7 +65,17 @@ GET /companies
 
 ---
 
-#### 1.2 企業作成
+#### 1.2 企業詳細取得
+
+```
+GET /companies/{company_id}
+```
+
+**レスポンス:** 企業オブジェクト
+
+---
+
+#### 1.3 企業作成
 
 ```
 POST /companies
@@ -77,7 +87,14 @@ POST /companies
   "name": "サンプル銀行",
   "name_en": "Sample Bank Corporation",
   "country": "Japan",
-  "is_active": true
+  "is_active": true,
+  "source_urls": [
+    {
+      "url": "https://example.com/press/",
+      "url_type": "press_release",
+      "is_active": true
+    }
+  ]
 }
 ```
 
@@ -85,7 +102,7 @@ POST /companies
 
 ---
 
-#### 1.3 企業更新
+#### 1.4 企業更新
 
 ```
 PUT /companies/{company_id}
@@ -105,7 +122,7 @@ PUT /companies/{company_id}
 
 ---
 
-#### 1.4 企業削除
+#### 1.5 企業削除
 
 ```
 DELETE /companies/{company_id}
@@ -122,7 +139,7 @@ DELETE /companies/{company_id}
 
 ---
 
-#### 1.5 ソースURL追加
+#### 1.6 ソースURL追加
 
 ```
 POST /companies/{company_id}/urls
@@ -141,7 +158,26 @@ POST /companies/{company_id}/urls
 
 ---
 
-#### 1.6 ソースURL削除
+#### 1.7 ソースURL更新
+
+```
+PUT /companies/{company_id}/urls/{url_id}
+```
+
+**リクエストボディ:**
+```json
+{
+  "url": "https://example.com/press/",
+  "url_type": "press_release",
+  "is_active": true
+}
+```
+
+**レスポンス:** 更新されたソースURLオブジェクト
+
+---
+
+#### 1.8 ソースURL削除
 
 ```
 DELETE /companies/{company_id}/urls/{url_id}
@@ -168,6 +204,12 @@ GET /articles?company_id={company_id}&skip={skip}&limit={limit}
 - `company_id` (optional): 企業IDでフィルタリング
 - `skip` (optional): スキップ数（デフォルト: 0）
 - `limit` (optional): 取得件数（デフォルト: 100）
+- `category` (optional): カテゴリでフィルタリング
+- `business_area` (optional): 業務領域でフィルタリング
+- `tags` (optional): タグでフィルタリング
+- `start_date` (optional): 開始日でフィルタリング（YYYY-MM-DD）
+- `end_date` (optional): 終了日でフィルタリング（YYYY-MM-DD）
+- `is_reviewed` (optional): レビュー状態でフィルタリング
 
 **レスポンス:**
 ```json
@@ -181,10 +223,13 @@ GET /articles?company_id={company_id}&skip={skip}&limit={limit}
       "published_date": "2025-01-15",
       "summary": "要約テキスト...",
       "content": "本文...",
+      "category": "顧客対応",
+      "business_area": "リテールバンキング",
       "tags": "AI,DX,自動化",
-      "source_type": "press_release",
-      "created_at": "2025-01-16T00:00:00",
-      "updated_at": "2025-01-16T00:00:00"
+      "is_inappropriate": false,
+      "inappropriate_reason": null,
+      "is_reviewed": false,
+      "created_at": "2025-01-16T00:00:00"
     }
   ],
   "total": 50
@@ -192,6 +237,130 @@ GET /articles?company_id={company_id}&skip={skip}&limit={limit}
 ```
 
 ---
+
+#### 2.2 記事更新
+
+```
+PUT /articles/{article_id}
+```
+
+**リクエストボディ:**
+```json
+{
+  "title": "AIを活用した新サービス開始",
+  "summary": "要約テキスト...",
+  "published_date": "2025-01-15",
+  "category": "顧客対応",
+  "business_area": "リテールバンキング",
+  "tags": "AI,DX,自動化",
+  "is_inappropriate": false,
+  "inappropriate_reason": null,
+  "is_reviewed": true
+}
+```
+
+**レスポンス:** 更新された記事オブジェクト
+
+---
+
+#### 2.3 記事分析サマリー取得
+
+```
+GET /articles/analysis-stats?company_id={company_id}
+```
+
+**クエリパラメータ:**
+- `company_id` (optional): 企業IDでフィルタリング
+
+**レスポンス:**
+```json
+{
+  "total": 120,
+  "analyzed": 80,
+  "coefficient": 66.7
+}
+```
+
+---
+
+#### 2.4 記事分析係数取得
+
+```
+GET /articles/analysis-coefficients?company_id={company_id}
+```
+
+**クエリパラメータ:**
+- `company_id` (optional): 企業IDでフィルタリング
+
+**レスポンス:**
+```json
+{
+  "total": 120,
+  "by_category": [{"label": "顧客対応", "count": 30}],
+  "by_business_area": [{"label": "リテールバンキング", "count": 25}],
+  "by_region": [{"label": "jp", "count": 40}],
+  "by_month": [{"period": "2025-01", "count": 10}]
+}
+```
+
+---
+
+#### 2.5 単一URLから記事追加
+
+```
+POST /articles/from-url
+```
+
+**リクエストボディ:**
+```json
+{
+  "url": "https://example.com/article/1",
+  "company_id": 1
+}
+```
+
+**レスポンス:**
+```json
+{
+  "job_id": 1,
+  "message": "URL addition job started for Sample Bank"
+}
+```
+
+**エラー:**
+- `400`: URLが重複している
+- `404`: 企業が見つからない
+
+---
+
+#### 2.6 複数URLから記事追加
+
+```
+POST /articles/from-urls
+```
+
+**リクエストボディ:**
+```json
+{
+  "urls": [
+    "https://example.com/article/1",
+    "https://example.com/article/2"
+  ],
+  "company_id": 1
+}
+```
+
+**レスポンス:**
+```json
+{
+  "job_id": 1,
+  "message": "2 URL(s) addition job started for Sample Bank"
+}
+```
+
+**エラー:**
+- `400`: URLが重複している、またはURLが空
+- `404`: 企業が見つからない
 
 ### 3. Jobs（ジョブ管理）
 
@@ -245,7 +414,7 @@ POST /jobs/start
 ```json
 {
   "job_id": 1,
-  "message": "Job started successfully"
+  "message": "Job started with 10 companies"
 }
 ```
 
@@ -312,24 +481,6 @@ GET /search-settings/global
 ```json
 {
   "id": 1,
-  "search_keywords": [
-    "AI",
-    "artificial intelligence",
-    "generative AI",
-    "machine learning",
-    "DX",
-    "digital transformation",
-    "automation",
-    "生成AI",
-    "デジタル",
-    "自動化",
-    "事例"
-  ],
-  "llm_filter_enabled": true,
-  "llm_filter_prompt": "Answer with JSON only: {\"ai_related\": true|false}.\nDetermine if the content is specifically related to AI...",
-  "llm_system_message": "AI relevance classifier (strict mode: AI-only, excluding general DX/digitalization)",
-  "llm_temperature": 0.0,
-  "llm_max_tokens": 120,
   "default_region": null
 }
 ```
@@ -345,23 +496,9 @@ PUT /search-settings/global
 **リクエストボディ:**
 ```json
 {
-  "search_keywords": ["AI", "machine learning", "生成AI"],
-  "llm_filter_enabled": true,
-  "llm_filter_prompt": "プロンプトテキスト...",
-  "llm_system_message": "システムメッセージ",
-  "llm_temperature": 0.0,
-  "llm_max_tokens": 120,
   "default_region": "jp"
 }
 ```
-
-**バリデーション:**
-- `search_keywords`: 最低1件以上
-- `llm_filter_prompt`: 最低10文字以上
-- `llm_system_message`: 5文字以上500文字以下
-- `llm_temperature`: 0.0 ~ 2.0
-- `llm_max_tokens`: 10 ~ 1000
-- `default_region`: 最大10文字
 
 **レスポンス:** 更新された設定オブジェクト
 
@@ -458,7 +595,58 @@ DELETE /search-settings/company/{company_name}
 
 ---
 
-### 6. Reports（レポート管理）
+#### 5.6 リージョン別キーワード取得
+
+```
+GET /search-settings/keywords/{region}
+```
+
+**パスパラメータ:**
+- `region`: リージョン（`global` 指定時はグローバル扱い）
+
+**レスポンス:**
+```json
+{
+  "region": "jp",
+  "keywords": ["AI", "生成AI", "DX"]
+}
+```
+
+### 6. Prompts（プロンプト管理）
+
+#### 6.1 プロンプト取得
+
+```
+GET /prompts
+```
+
+**レスポンス:**
+```json
+{
+  "classifier": {
+    "system_prompt": "分類用システムプロンプト...",
+    "user_prompt_template": "ユーザープロンプトテンプレート...",
+    "categories": ["顧客対応", "与信", "不正検知"],
+    "business_areas": ["リテールバンキング", "法人向け"],
+    "temperature": 0.0
+  },
+  "summarizer": {
+    "system_prompt": "要約用システムプロンプト...",
+    "user_prompt_template": "要約テンプレート...",
+    "temperature": 0.2
+  },
+  "ai_relevance": {
+    "system_prompt": "AI関連判定用システムプロンプト...",
+    "content_prompt_template": "本文用テンプレート...",
+    "text_prompt_template": "テキスト用テンプレート...",
+    "temperature": 0.0
+  }
+}
+```
+
+---
+
+### 7. Reports（レポート管理）
 
 #### 6.1 レポート一覧取得
 
@@ -471,11 +659,9 @@ GET /reports
 {
   "reports": [
     {
-      "id": "report_2025-01-15",
-      "start_date": "2025-01-01",
-      "end_date": "2025-01-15",
-      "generated_at": "2025-01-16T00:00:00",
-      "file_path": "/path/to/report.pdf"
+      "filename": "report_2025-01-15.md",
+      "size": 10240,
+      "created_at": 1736899200.0
     }
   ]
 }
@@ -497,32 +683,36 @@ POST /reports/generate?start_date={start_date}&end_date={end_date}
 ```json
 {
   "message": "Report generated successfully",
-  "report_id": "report_2025-01-15",
-  "file_path": "/path/to/report.pdf"
+  "filepath": "/app/reports/report_2025-01-15.md",
+  "filename": "report_2025-01-15.md"
 }
 ```
 
 ---
 
+#### 6.3 レポートダウンロード
+
+```
+GET /reports/download/{filename}
+```
+
+**パスパラメータ:**
+- `filename`: レポートのファイル名
+
+**レスポンス:** Markdownファイル
+
 ## 検索設定の優先順位
 
 検索実行時の設定値は以下の優先順位で決定されます：
 
-### キーワード
-1. `company_search_settings.custom_keywords` （企業別設定）
-2. `global_search_settings.search_keywords` （グローバル設定）
-3. YAMLファイルのフォールバック
-4. ハードコードされたデフォルト値
-
 ### リージョン
 1. `company_search_settings.region` （企業別設定）
 2. `global_search_settings.default_region` （グローバル設定）
-3. YAMLファイルのフォールバック
-4. `null`（グローバル検索）
+3. `null`（グローバル検索）
 
-### LLMフィルター設定
-- 常に `global_search_settings` の値を使用
-- 企業別のカスタマイズは不可
+### キーワード
+- リージョンに応じて内部のキーワードセットを使用
+- `company_search_settings.custom_keywords` が設定されている場合はそれを優先
 
 ---
 
@@ -577,15 +767,6 @@ docker compose run --rm backend python scripts/print_duckduckgo_search_results.p
 
 ---
 
-### 3. LLMフィルターのチューニング
-
-`llm_temperature` と `llm_max_tokens` は以下の値から開始することを推奨します：
-
-- **厳密なフィルタリング**: `temperature=0.0`, `max_tokens=120`
-- **柔軟なフィルタリング**: `temperature=0.3`, `max_tokens=200`
-
----
-
 ## リクエスト例
 
 ### cURLでの企業別設定作成
@@ -604,7 +785,7 @@ curl -X PUT "http://localhost:8000/api/v1/search-settings/company/JPMorgan%20Cha
 ```javascript
 const response = await fetch('http://localhost:8000/api/v1/search-settings/global');
 const settings = await response.json();
-console.log(settings.search_keywords);
+console.log(settings.default_region);
 ```
 
 ### Pythonでのジョブ開始

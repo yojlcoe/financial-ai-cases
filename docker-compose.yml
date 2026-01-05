@@ -38,6 +38,8 @@ services:
       DATABASE_URL: postgresql+asyncpg://casestudy:casestudy123@db:5432/casestudy
       OLLAMA_BASE_URL: http://ollama:11434
       OLLAMA_MODEL: gemma3:4b
+      BASIC_AUTH_USERNAME: admin
+      BASIC_AUTH_PASSWORD: change_this_password
     volumes:
       - ./backend:/app
       - ./data/reports:/app/reports
@@ -56,7 +58,10 @@ services:
     container_name: case-study-frontend
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:8000
+      NEXT_PUBLIC_API_URL:
+      API_PROXY_TARGET: http://backend:8000
+      API_BASIC_AUTH_USERNAME: admin
+      API_BASIC_AUTH_PASSWORD: change_this_password
     ports:
       - "3000:3000"
     depends_on:

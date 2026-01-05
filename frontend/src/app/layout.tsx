@@ -11,8 +11,8 @@ import {
 } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: '事例調査AIエージェント',
-  description: '金融機関のAI・DX事例を自動収集・分析',
+  title: '金融AI事例調査',
+  description: '金融AI事例調査システムの概要',
 };
 
 export default function RootLayout({
@@ -24,11 +24,10 @@ export default function RootLayout({
     <html lang="ja">
       <body className="bg-gray-50">
         <div className="flex min-h-screen">
-          {/* Sidebar */}
           <aside className="w-64 bg-gray-900 text-white">
             <div className="p-4">
-              <h1 className="text-xl font-bold">事例調査Agent</h1>
-              <p className="text-gray-400 text-sm mt-1">AI Case Study Research</p>
+              <h1 className="text-xl font-bold">金融AI事例調査</h1>
+              <p className="text-gray-400 text-sm mt-1">AI in Finance Case Study Research</p>
             </div>
             <nav className="mt-6">
               <NavLink href="/" icon={<Home size={20} />}>
@@ -52,7 +51,6 @@ export default function RootLayout({
             </nav>
           </aside>
 
-          {/* Main Content */}
           <main className="flex-1 p-8">
             {children}
           </main>
