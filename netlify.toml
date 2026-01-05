@@ -11,6 +11,7 @@
   from = "/api/v1/*"
   to = "/.netlify/functions/api-proxy/:splat"
   status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
@@ -18,7 +19,7 @@
   status = 200
 
 [functions]
-  directory = "frontend/netlify/functions"
+  directory = "netlify/functions"
 
 [[headers]]
   for = "/*"
