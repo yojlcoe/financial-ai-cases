@@ -84,3 +84,6 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
+
+# Database migration dumps
+backend/scripts/database_dump_*.sql

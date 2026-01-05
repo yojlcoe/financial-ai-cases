@@ -29,6 +29,7 @@ async def list_articles(
     tags: Optional[str] = Query(None, description="Filter by tag"),
     start_date: Optional[date] = Query(None, description="Filter by start date"),
     end_date: Optional[date] = Query(None, description="Filter by end date"),
+    include_unknown_dates: Optional[bool] = Query(None, description="Include articles with unknown dates"),
     is_reviewed: Optional[bool] = Query(None, description="Filter by review status"),
     db: AsyncSession = Depends(get_db)
 ):
@@ -42,6 +43,7 @@ async def list_articles(
         tags=tags,
         start_date=start_date,
         end_date=end_date,
+        include_unknown_dates=include_unknown_dates,
         is_reviewed=is_reviewed,
     )
     return ArticleListResponse(items=articles, total=total)

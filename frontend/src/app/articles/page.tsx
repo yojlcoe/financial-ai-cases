@@ -19,6 +19,8 @@ export default function ArticlesPage() {
   const [selectedTag, setSelectedTag] = useState<string>('');
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+  const [includeUnknownDates, setIncludeUnknownDates] = useState<boolean>(false);
+  const [dateError, setDateError] = useState<string>('');
   const [reviewStatus, setReviewStatus] = useState<string>('');
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
   const [editValues, setEditValues] = useState({
@@ -41,13 +43,29 @@ export default function ArticlesPage() {
   ]);
   const [addingArticle, setAddingArticle] = useState(false);
 
+  // 日付バリデーション
+  const validateDates = (start: string, end: string): boolean => {
+    if (start && end && start > end) {
+      setDateError('終了日は開始日以降の日付を指定してください');
+      return false;
+    }
+    setDateError('');
+    return true;
+  };
+
   useEffect(() => {
     fetchData();
-  }, [currentPage, selectedCompany, selectedCategory, selectedBusinessArea, selectedTag, startDate, endDate, reviewStatus]);
+  }, [currentPage, selectedCompany, selectedCategory, selectedBusinessArea, selectedTag, startDate, endDate, includeUnknownDates, reviewStatus]);
 
   const fetchData = async () => {
     try {
       setLoading(true);
+
+      // 日付バリデーションチェック
+      if (!validateDates(startDate, endDate)) {
+        setLoading(false);
+        return;
+      }
 
       // クエリパラメータを構築
       const params: Record<string, string> = {
@@ -72,6 +90,9 @@ export default function ArticlesPage() {
       }
       if (endDate) {
         params.end_date = endDate;
+      }
+      if (includeUnknownDates) {
+        params.include_unknown_dates = 'true';
       }
       if (reviewStatus !== '') {
         params.is_reviewed = reviewStatus;
@@ -374,27 +395,63 @@ export default function ArticlesPage() {
             <option value="true">確認済み</option>
             <option value="false">未確認</option>
           </select>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => {
-              setStartDate(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="border rounded-lg px-3 py-2"
-            placeholder="開始日"
-          />
-          <span className="flex items-center text-gray-500">〜</span>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="border rounded-lg px-3 py-2"
-            placeholder="終了日"
-          />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  const newStartDate = e.target.value;
+                  setStartDate(newStartDate);
+                  if (validateDates(newStartDate, endDate)) {
+                    setCurrentPage(1);
+                  }
+                }}
+                onBlur={(e) => e.target.blur()}
+                className={`border rounded-lg px-3 py-2 ${dateError ? 'border-red-500' : ''}`}
+                placeholder="開始日"
+                disabled={includeUnknownDates}
+              />
+              <span className="flex items-center text-gray-500">〜</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  const newEndDate = e.target.value;
+                  setEndDate(newEndDate);
+                  if (validateDates(startDate, newEndDate)) {
+                    setCurrentPage(1);
+                  }
+                }}
+                onBlur={(e) => e.target.blur()}
+                className={`border rounded-lg px-3 py-2 ${dateError ? 'border-red-500' : ''}`}
+                placeholder="終了日"
+                disabled={includeUnknownDates}
+              />
+            </div>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={includeUnknownDates}
+                  onChange={(e) => {
+                    setIncludeUnknownDates(e.target.checked);
+                    if (e.target.checked) {
+                      setStartDate('');
+                      setEndDate('');
+                      setDateError('');
+                    }
+                    setCurrentPage(1);
+                  }}
+                  className="rounded"
+                />
+                <span>日付不明を含む</span>
+              </label>
+              {dateError && (
+                <span className="text-sm text-red-500">{dateError}</span>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

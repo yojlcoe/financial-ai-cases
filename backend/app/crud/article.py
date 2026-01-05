@@ -1,4 +1,4 @@
-from sqlalchemy import select, func, and_, case
+from sqlalchemy import select, func, and_, case, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional, List
 from datetime import date
@@ -17,6 +17,7 @@ async def get_articles(
     tags: Optional[str] = None,
     start_date: Optional[date] = None,
     end_date: Optional[date] = None,
+    include_unknown_dates: Optional[bool] = None,
     is_reviewed: Optional[bool] = None,
 ) -> tuple[List[Article], int]:
     query = select(Article)
@@ -43,13 +44,37 @@ async def get_articles(
         query = query.where(Article.tags.contains(tags))
         count_query = count_query.where(Article.tags.contains(tags))
 
-    if start_date:
-        query = query.where(Article.published_date >= start_date)
-        count_query = count_query.where(Article.published_date >= start_date)
+    # 日付フィルタリング
+    if start_date or end_date:
+        # 日付範囲が指定されている場合
+        if include_unknown_dates:
+            # 日付不明を含む場合は、日付がNULLまたは範囲内のものを取得
+            date_conditions = []
+            if start_date and end_date:
+                date_conditions.append(
+                    and_(Article.published_date >= start_date, Article.published_date <= end_date)
+                )
+            elif start_date:
+                date_conditions.append(Article.published_date >= start_date)
+            elif end_date:
+                date_conditions.append(Article.published_date <= end_date)
 
-    if end_date:
-        query = query.where(Article.published_date <= end_date)
-        count_query = count_query.where(Article.published_date <= end_date)
+            # NULLまたは日付範囲内の条件
+            date_conditions.append(Article.published_date.is_(None))
+            query = query.where(or_(*date_conditions))
+            count_query = count_query.where(or_(*date_conditions))
+        else:
+            # 日付不明を含まない場合は、範囲内のもののみ
+            if start_date:
+                query = query.where(Article.published_date >= start_date)
+                count_query = count_query.where(Article.published_date >= start_date)
+            if end_date:
+                query = query.where(Article.published_date <= end_date)
+                count_query = count_query.where(Article.published_date <= end_date)
+    elif include_unknown_dates:
+        # 日付範囲の指定なしで、日付不明のみを取得
+        query = query.where(Article.published_date.is_(None))
+        count_query = count_query.where(Article.published_date.is_(None))
 
     if is_reviewed is not None:
         query = query.where(Article.is_reviewed == is_reviewed)
