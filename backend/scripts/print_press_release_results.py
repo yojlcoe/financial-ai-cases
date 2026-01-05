@@ -39,18 +39,12 @@ def parse_args() -> argparse.Namespace:
         help="Disable LLM fallback for press links",
     )
     parser.add_argument(
-        "--no-ai-only-llm",
-        action="store_false",
-        dest="ai_only_llm",
-        help="Disable AI/DX LLM classification",
-    )
-    parser.add_argument(
         "--no-date-llm",
         action="store_false",
         dest="date_llm",
         help="Disable LLM date extraction",
     )
-    parser.set_defaults(use_llm=True, ai_only_llm=True, date_llm=True)
+    parser.set_defaults(use_llm=True, date_llm=True)
     return parser.parse_args()
 
 
@@ -66,7 +60,6 @@ async def main() -> None:
         end_date,
         debug=args.debug_html,
         use_llm_fallback=args.use_llm,
-        filter_ai_with_llm=args.ai_only_llm,
         extract_date_with_llm=args.date_llm,
     )
 
