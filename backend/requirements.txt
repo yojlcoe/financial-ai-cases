@@ -1,0 +1,37 @@
+# Web Framework
+fastapi
+uvicorn[standard]
+
+# Database
+sqlalchemy[asyncio]
+asyncpg
+alembic
+
+# HTTP Client
+httpx
+aiohttp
+
+# Web Scraping
+beautifulsoup4
+lxml
+PyPDF2
+pycryptodome
+
+# LLM
+ollama
+
+# Utilities
+python-dotenv
+pydantic
+pydantic-settings
+apscheduler
+
+# Date parsing
+python-dateutil
+
+# Testing
+pytest
+pytest-asyncio
+
+# Search
+ddgs

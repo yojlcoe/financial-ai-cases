@@ -1,0 +1,32 @@
+# DuckDuckGo Search Configuration
+
+# Search keywords (both English and Japanese supported)
+search_keywords:
+  - "AI"
+  - "artificial intelligence"
+  - "generative AI"
+  - "machine learning"
+  - "DX"
+  - "digital transformation"
+  - "automation"
+  - "生成AI"
+  - "デジタル"
+  - "自動化"
+  - "事例"
+
+# LLM filter prompt configuration
+llm_filter:
+  enabled: true
+  prompt: |
+    Answer with JSON only: {"ai_related": true|false}.
+    Determine if the content is specifically related to AI (Artificial Intelligence),
+    including: generative AI, machine learning, LLM, ChatGPT, AI automation, etc.
+    Note: DX (Digital Transformation) or general digitalization WITHOUT AI should be marked as false.
+  system_message: "AI relevance classifier (strict mode: AI-only, excluding general DX/digitalization)"
+  temperature: 0.0
+  max_tokens: 120
+
+# Region settings for DuckDuckGo search
+# Examples: "us" for United States, "jp" for Japan, "uk" for United Kingdom
+# Leave empty or set to null for global search
+default_region: null  # null = global search, "us" = US region, "jp" = Japan region
