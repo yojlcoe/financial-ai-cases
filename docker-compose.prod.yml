@@ -52,8 +52,6 @@ services:
     volumes:
       - ./backend:/app
       - ./data/reports:/app/reports
-    ports:
-      - "${BACKEND_PORT:-8000}:8000"
     networks:
       - app-network
     depends_on:
@@ -63,9 +61,38 @@ services:
         condition: service_started
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
+  caddy:
+    image: caddy:2.7.6-alpine
+    container_name: case-study-caddy-prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deployment/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+  duckdns:
+    image: linuxserver/duckdns:latest
+    container_name: case-study-duckdns
+    restart: unless-stopped
+    environment:
+      SUBDOMAINS: financial-ai-cases
+      TOKEN: ${DUCKDNS_TOKEN}
+      LOG_FILE: "false"
+    networks:
+      - app-network
+
 volumes:
   postgres_data:
   ollama_models:
+  caddy_data:
+  caddy_config:
 
 networks:
   app-network:
