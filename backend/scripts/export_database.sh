@@ -16,7 +16,7 @@ echo ""
 
 # job_histories 以外のテーブルをダンプ
 echo "テーブルをエクスポート中..."
-docker-compose exec -T db pg_dump -U casestudy -d casestudy \
+docker compose exec -T db pg_dump -U casestudy -d casestudy \
   --exclude-table=job_histories \
   --no-owner \
   --no-acl \

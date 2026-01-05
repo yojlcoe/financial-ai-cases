@@ -35,7 +35,7 @@ echo ""
 echo "既存データをクリア中..."
 
 # job_histories 以外のテーブルをクリア
-docker-compose exec -T db psql -U casestudy -d casestudy <<EOF
+docker compose exec -T db psql -U casestudy -d casestudy <<EOF
 TRUNCATE TABLE company_search_settings CASCADE;
 TRUNCATE TABLE search_settings CASCADE;
 TRUNCATE TABLE schedule_settings CASCADE;
@@ -49,7 +49,7 @@ echo ""
 echo "データをインポート中..."
 
 # SQLファイルをインポート
-cat "${DUMP_FILE}" | docker-compose exec -T db psql -U casestudy -d casestudy
+cat "${DUMP_FILE}" | docker compose exec -T db psql -U casestudy -d casestudy
 
 echo ""
 echo "======================================"
