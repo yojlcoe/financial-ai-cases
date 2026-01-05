@@ -19,7 +19,7 @@
   status = 200
 
 [functions]
-  directory = "netlify/functions"
+  directory = "frontend/netlify/functions"
 
 [[headers]]
   for = "/*"
