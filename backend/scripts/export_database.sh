@@ -14,10 +14,11 @@ echo "======================================"
 echo "出力ファイル: ${OUTPUT_FILE}"
 echo ""
 
-# job_histories 以外のテーブルをダンプ
+# job_histories 以外のテーブルをダンプ（データのみ）
 echo "テーブルをエクスポート中..."
-docker compose exec -T db pg_dump -U casestudy -d casestudy \
+docker-compose exec -T db pg_dump -U casestudy -d casestudy \
   --exclude-table=job_histories \
+  --data-only \
   --no-owner \
   --no-acl \
   -F p \

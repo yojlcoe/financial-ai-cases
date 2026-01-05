@@ -48,8 +48,15 @@ echo "✓ データクリア完了"
 echo ""
 echo "データをインポート中..."
 
-# SQLファイルをインポート
+# SQLファイルをインポート（--data-onlyでエクスポートされたファイル）
 cat "${DUMP_FILE}" | docker compose exec -T db psql -U casestudy -d casestudy
+
+echo ""
+echo "データ確認中..."
+docker compose exec -T db psql -U casestudy -d casestudy -c "SELECT
+  (SELECT COUNT(*) FROM companies) as companies_count,
+  (SELECT COUNT(*) FROM articles) as articles_count,
+  (SELECT COUNT(*) FROM source_urls) as source_urls_count;"
 
 echo ""
 echo "======================================"
