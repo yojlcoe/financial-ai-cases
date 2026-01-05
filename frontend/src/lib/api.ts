@@ -1,12 +1,26 @@
 import type { Article, ArticleAnalysisCoefficients } from '@/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+const BASIC_AUTH_USERNAME = process.env.NEXT_PUBLIC_BASIC_AUTH_USERNAME;
+const BASIC_AUTH_PASSWORD = process.env.NEXT_PUBLIC_BASIC_AUTH_PASSWORD;
+
+function getBasicAuthHeader(): string | null {
+  if (BASIC_AUTH_USERNAME && BASIC_AUTH_PASSWORD) {
+    if (typeof window === 'undefined') {
+      return `Basic ${Buffer.from(`${BASIC_AUTH_USERNAME}:${BASIC_AUTH_PASSWORD}`).toString('base64')}`;
+    }
+    return `Basic ${btoa(`${BASIC_AUTH_USERNAME}:${BASIC_AUTH_PASSWORD}`)}`;
+  }
+  return null;
+}
 
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  const basicAuth = getBasicAuthHeader();
   const res = await fetch(`${API_BASE}/api/v1${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(basicAuth ? { Authorization: basicAuth } : {}),
       ...options?.headers,
     },
   });
