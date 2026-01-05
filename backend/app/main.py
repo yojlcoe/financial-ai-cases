@@ -11,9 +11,12 @@ settings = get_settings()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # 起動時: テーブル作成
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    # 起動時処理
+    # Note: 本番環境ではマイグレーションファイルを使用するため、
+    # 自動テーブル作成は無効化しています
+    # ローカル開発環境で自動作成が必要な場合は、以下のコメントを外してください:
+    # async with engine.begin() as conn:
+    #     await conn.run_sync(Base.metadata.create_all)
     yield
     # 終了時
     await engine.dispose()
