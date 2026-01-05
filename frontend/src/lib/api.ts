@@ -1,6 +1,7 @@
 import type { Article, ArticleAnalysisCoefficients } from '@/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
+const API_PREFIX = API_BASE.includes('/.netlify/functions/api-proxy') ? '' : '/api/v1';
 const BASIC_AUTH_USERNAME = process.env.NEXT_PUBLIC_BASIC_AUTH_USERNAME;
 const BASIC_AUTH_PASSWORD = process.env.NEXT_PUBLIC_BASIC_AUTH_PASSWORD;
 
@@ -16,7 +17,7 @@ function getBasicAuthHeader(): string | null {
 
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const basicAuth = getBasicAuthHeader();
-  const res = await fetch(`${API_BASE}/api/v1${endpoint}`, {
+  const res = await fetch(`${API_BASE}${API_PREFIX}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
