@@ -2,26 +2,20 @@ import type { Article, ArticleAnalysisCoefficients } from '@/types';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
 const API_PREFIX = API_BASE.includes('/.netlify/functions/api-proxy') ? '' : '/api/v1';
-const BASIC_AUTH_USERNAME = process.env.NEXT_PUBLIC_BASIC_AUTH_USERNAME;
-const BASIC_AUTH_PASSWORD = process.env.NEXT_PUBLIC_BASIC_AUTH_PASSWORD;
+const STORAGE_KEY = 'basic_auth_token';
 
-function getBasicAuthHeader(): string | null {
-  if (BASIC_AUTH_USERNAME && BASIC_AUTH_PASSWORD) {
-    if (typeof window === 'undefined') {
-      return `Basic ${Buffer.from(`${BASIC_AUTH_USERNAME}:${BASIC_AUTH_PASSWORD}`).toString('base64')}`;
-    }
-    return `Basic ${btoa(`${BASIC_AUTH_USERNAME}:${BASIC_AUTH_PASSWORD}`)}`;
-  }
-  return null;
+function getStoredToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return window.localStorage.getItem(STORAGE_KEY);
 }
 
 async function fetchAPI<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const basicAuth = getBasicAuthHeader();
+  const storedToken = getStoredToken();
   const res = await fetch(`${API_BASE}${API_PREFIX}${endpoint}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(basicAuth ? { Authorization: basicAuth } : {}),
+      ...(storedToken ? { Authorization: `Basic ${storedToken}` } : {}),
       ...options?.headers,
     },
   });

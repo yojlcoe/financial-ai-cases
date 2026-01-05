@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import AuthGate from './components/AuthGate';
 import {
   Building2,
   Settings,
@@ -23,38 +24,40 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className="bg-gray-50">
-        <div className="flex min-h-screen">
-          <aside className="w-64 bg-gray-900 text-white">
-            <div className="p-4">
-              <h1 className="text-xl font-bold">金融AI事例調査</h1>
-              <p className="text-gray-400 text-sm mt-1">AI in Finance Case Study Research</p>
-            </div>
-            <nav className="mt-6">
-              <NavLink href="/" icon={<Home size={20} />}>
-                ダッシュボード
-              </NavLink>
-              <NavLink href="/companies" icon={<Building2 size={20} />}>
-                企業管理
-              </NavLink>
-              <NavLink href="/settings" icon={<Settings size={20} />}>
-                設定
-              </NavLink>
-              <NavLink href="/jobs" icon={<PlayCircle size={20} />}>
-                実行管理
-              </NavLink>
-              <NavLink href="/articles" icon={<Newspaper size={20} />}>
-                収集記事
-              </NavLink>
-              <NavLink href="/reports" icon={<FileText size={20} />}>
-                レポート
-              </NavLink>
-            </nav>
-          </aside>
+        <AuthGate>
+          <div className="flex min-h-screen">
+            <aside className="w-64 bg-gray-900 text-white">
+              <div className="p-4">
+                <h1 className="text-xl font-bold">金融AI事例調査</h1>
+                <p className="text-gray-400 text-sm mt-1">AI in Finance Case Study Research</p>
+              </div>
+              <nav className="mt-6">
+                <NavLink href="/" icon={<Home size={20} />}>
+                  ダッシュボード
+                </NavLink>
+                <NavLink href="/companies" icon={<Building2 size={20} />}>
+                  企業管理
+                </NavLink>
+                <NavLink href="/settings" icon={<Settings size={20} />}>
+                  設定
+                </NavLink>
+                <NavLink href="/jobs" icon={<PlayCircle size={20} />}>
+                  実行管理
+                </NavLink>
+                <NavLink href="/articles" icon={<Newspaper size={20} />}>
+                  収集記事
+                </NavLink>
+                <NavLink href="/reports" icon={<FileText size={20} />}>
+                  レポート
+                </NavLink>
+              </nav>
+            </aside>
 
-          <main className="flex-1 p-8">
-            {children}
-          </main>
-        </div>
+            <main className="flex-1 p-8">
+              {children}
+            </main>
+          </div>
+        </AuthGate>
       </body>
     </html>
   );
