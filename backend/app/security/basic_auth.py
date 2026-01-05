@@ -13,6 +13,8 @@ def require_basic_auth(
     credentials: HTTPBasicCredentials = Depends(security),
 ) -> None:
     settings = get_settings()
+    if not settings.basic_auth_enabled:
+        return
     valid_username = secrets.compare_digest(
         credentials.username,
         settings.basic_auth_username,

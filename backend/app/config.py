@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     # Basic Auth
     basic_auth_username: str = "admin"
     basic_auth_password: str = "admin123"
+    basic_auth_enabled: bool = True
 
     class Config:
         env_file = ".env"
