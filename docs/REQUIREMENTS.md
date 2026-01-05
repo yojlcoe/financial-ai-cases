@@ -54,7 +54,7 @@
 
 | 企業名 | 英語名 | 国 |
 |--------|--------|-----|
-| 三井住友銀行 | Sumitomo Mitsui Banking Corporation | 日本 |
+| サンプル銀行 | Sample Bank Corporation | 日本 |
 | JPMorgan Chase | JPMorgan Chase & Co. | 米国 |
 | Capital One | Capital One Financial Corporation | 米国 |
 | Royal Bank of Canada | Royal Bank of Canada | カナダ |
@@ -70,7 +70,7 @@
 
 ## 5. 出力フォーマット
 ```markdown
-# 企業名：三井住友銀行
+# 企業名：サンプル銀行
 
 ## 1. AIチャットボット導入による顧客対応効率化
 
@@ -91,7 +91,7 @@
 - **タグ**: #チャットボット #自動化 #顧客サポート
 - **発行日**: 2025-09-15
 - **ソース**: 
-  - https://www.smbc.co.jp/news/xxx
+  - https://example.com/news/xxx
 ```
 
 ---

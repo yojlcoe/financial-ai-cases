@@ -50,8 +50,8 @@ GET /companies
   "items": [
     {
       "id": 1,
-      "name": "三井住友銀行",
-      "name_en": "Sumitomo Mitsui Banking Corporation",
+      "name": "サンプル銀行",
+      "name_en": "Sample Bank Corporation",
       "country": "Japan",
       "is_active": true,
       "created_at": "2025-01-01T00:00:00",
@@ -74,8 +74,8 @@ POST /companies
 **リクエストボディ:**
 ```json
 {
-  "name": "三井住友銀行",
-  "name_en": "Sumitomo Mitsui Banking Corporation",
+  "name": "サンプル銀行",
+  "name_en": "Sample Bank Corporation",
   "country": "Japan",
   "is_active": true
 }
@@ -94,8 +94,8 @@ PUT /companies/{company_id}
 **リクエストボディ:**
 ```json
 {
-  "name": "三井住友銀行",
-  "name_en": "Sumitomo Mitsui Banking Corporation",
+  "name": "サンプル銀行",
+  "name_en": "Sample Bank Corporation",
   "country": "Japan",
   "is_active": true
 }
@@ -131,7 +131,7 @@ POST /companies/{company_id}/urls
 **リクエストボディ:**
 ```json
 {
-  "url": "https://www.smbc.co.jp/news/",
+  "url": "https://example.com/press/",
   "url_type": "press_release",
   "is_active": true
 }
