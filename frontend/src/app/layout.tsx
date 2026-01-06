@@ -1,7 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import AuthGate from './components/AuthGate';
+import AuthGate, { LogoutButton } from './components/AuthGate';
 import {
   Building2,
   Settings,
@@ -26,12 +26,12 @@ export default function RootLayout({
       <body className="bg-gray-50">
         <AuthGate>
           <div className="flex min-h-screen">
-            <aside className="w-64 bg-gray-900 text-white">
+            <aside className="w-64 bg-gray-900 text-white flex flex-col">
               <div className="p-4">
                 <h1 className="text-xl font-bold">金融AI事例調査</h1>
                 <p className="text-gray-400 text-sm mt-1">AI in Finance Case Study Research</p>
               </div>
-              <nav className="mt-6">
+              <nav className="mt-6 flex-1">
                 <NavLink href="/" icon={<Home size={20} />}>
                   ダッシュボード
                 </NavLink>
@@ -51,6 +51,9 @@ export default function RootLayout({
                   レポート
                 </NavLink>
               </nav>
+              <div className="p-4 border-t border-gray-800">
+                <LogoutButton />
+              </div>
             </aside>
 
             <main className="flex-1 p-8">

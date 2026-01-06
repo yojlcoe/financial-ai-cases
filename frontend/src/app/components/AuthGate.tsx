@@ -34,13 +34,6 @@ export default function AuthGate({ children }: AuthGateProps) {
     setError("");
   };
 
-  const onLogout = () => {
-    window.localStorage.removeItem(STORAGE_KEY);
-    setAuthed(false);
-    setUsername("");
-    setPassword("");
-  };
-
   if (!ready) {
     return null;
   }
@@ -94,16 +87,21 @@ export default function AuthGate({ children }: AuthGateProps) {
     );
   }
 
+  return <>{children}</>;
+}
+
+export function LogoutButton() {
+  const handleLogout = () => {
+    window.localStorage.removeItem(STORAGE_KEY);
+    window.location.reload();
+  };
+
   return (
-    <>
-      <button
-        type="button"
-        onClick={onLogout}
-        className="fixed right-6 top-6 z-50 rounded-md bg-gray-900 px-3 py-2 text-xs font-medium text-white hover:bg-gray-800"
-      >
-        ログアウト
-      </button>
-      {children}
-    </>
+    <button
+      onClick={handleLogout}
+      className="w-full bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+    >
+      ログアウト
+    </button>
   );
 }

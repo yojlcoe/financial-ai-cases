@@ -66,11 +66,67 @@ Frontend (Next.js) ⟷ Backend (FastAPI) ⟷ PostgreSQL
 
 ## ドキュメント
 
+### プロジェクト仕様書
+
 詳細な仕様は `docs/` ディレクトリを参照してください：
 
 - [📘 DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) - データベーススキーマ仕様
 - [📗 API_SPECIFICATION.md](docs/API_SPECIFICATION.md) - REST API仕様
 - [📙 ARCHITECTURE.md](docs/ARCHITECTURE.md) - システムアーキテクチャ
+
+### フレームワーク公式ドキュメント
+
+#### バックエンド
+
+- **FastAPI**: https://fastapi.tiangolo.com/
+  - [チュートリアル](https://fastapi.tiangolo.com/tutorial/)
+  - [APIリファレンス](https://fastapi.tiangolo.com/reference/)
+  - [依存性注入](https://fastapi.tiangolo.com/tutorial/dependencies/)
+  - [バックグラウンドタスク](https://fastapi.tiangolo.com/tutorial/background-tasks/)
+
+- **SQLAlchemy 2.0**: https://docs.sqlalchemy.org/
+  - [ORM クイックスタート](https://docs.sqlalchemy.org/en/20/orm/quickstart.html)
+  - [非同期I/O](https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html)
+  - [リレーションシップ](https://docs.sqlalchemy.org/en/20/orm/relationships.html)
+
+- **Pydantic**: https://docs.pydantic.dev/
+  - [モデル定義](https://docs.pydantic.dev/latest/concepts/models/)
+  - [バリデーション](https://docs.pydantic.dev/latest/concepts/validators/)
+
+#### フロントエンド
+
+- **Next.js 14**: https://nextjs.org/docs
+  - [App Router](https://nextjs.org/docs/app)
+  - [Server Components](https://nextjs.org/docs/app/building-your-application/rendering/server-components)
+  - [Client Components](https://nextjs.org/docs/app/building-your-application/rendering/client-components)
+  - [データフェッチ](https://nextjs.org/docs/app/building-your-application/data-fetching)
+
+- **React 18**: https://react.dev/
+  - [Hooks リファレンス](https://react.dev/reference/react)
+  - [useEffect](https://react.dev/reference/react/useEffect)
+  - [useState](https://react.dev/reference/react/useState)
+
+- **Tailwind CSS**: https://tailwindcss.com/docs
+  - [ユーティリティクラス](https://tailwindcss.com/docs/utility-first)
+  - [レスポンシブデザイン](https://tailwindcss.com/docs/responsive-design)
+  - [Flexbox](https://tailwindcss.com/docs/flex)
+
+#### データベース
+
+- **PostgreSQL**: https://www.postgresql.org/docs/
+  - [SQL構文](https://www.postgresql.org/docs/current/sql.html)
+  - [データ型](https://www.postgresql.org/docs/current/datatype.html)
+  - [インデックス](https://www.postgresql.org/docs/current/indexes.html)
+
+#### その他
+
+- **Docker**: https://docs.docker.com/
+  - [Dockerfile リファレンス](https://docs.docker.com/engine/reference/builder/)
+  - [Docker Compose](https://docs.docker.com/compose/)
+
+- **Ollama**: https://github.com/ollama/ollama
+  - [API リファレンス](https://github.com/ollama/ollama/blob/main/docs/api.md)
+  - [モデル一覧](https://ollama.com/library)
 
 ## 使い方
 
