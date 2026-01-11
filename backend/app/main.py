@@ -1,11 +1,17 @@
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+import logging
 
 from app.config import get_settings
 from app.api.v1.router import api_router
 from app.core.database import engine, Base
 from app.security.basic_auth import require_basic_auth
+from app.logging_config import setup_logging
+
+# ロギング設定を初期化
+setup_logging()
+logger = logging.getLogger(__name__)
 
 settings = get_settings()
 

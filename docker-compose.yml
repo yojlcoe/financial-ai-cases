@@ -44,8 +44,14 @@ services:
     volumes:
       - ./backend:/app
       - ./data/reports:/app/reports
+      - ./data/logs:/app/logs
     ports:
       - "8000:8000"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
     depends_on:
       db:
         condition: service_healthy
