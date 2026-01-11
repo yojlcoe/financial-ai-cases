@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Building2, FileText, PlayCircle, Clock, LineChart } from 'lucide-react';
+import { Building2, FileText, PlayCircle, Clock, TrendingUp, Activity } from 'lucide-react';
 import { getCompanies, getJobs, getArticles, getArticleAnalysisStats, getArticleAnalysisCoefficients } from '@/lib/api';
 import { formatDate } from '@/utils/datetime';
 import { ArticleAnalysisCoefficients } from '@/types';
@@ -49,89 +49,74 @@ export default function Dashboard() {
   }, []);
 
   if (loading) {
-    return <div className="text-center py-10">読み込み中...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-gray-400 flex flex-col items-center gap-3">
+          <Activity className="animate-pulse" size={32} />
+          <span className="text-sm">読み込み中...</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            ダッシュボード
-          </h1>
-          <p className="text-gray-600 mt-1">金融AI事例調査システムの概要</p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">ダッシュボード</h1>
+        <p className="text-sm text-gray-500 mt-1">システム全体の状況を確認できます</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          icon={<Building2 size={24} />}
-          label="登録企業数"
+          icon={<Building2 size={20} />}
+          label="登録企業"
           value={stats.companies}
           color="blue"
         />
         <StatCard
-          icon={<FileText size={24} />}
-          label="収集記事数"
+          icon={<FileText size={20} />}
+          label="収集記事"
           value={stats.articles}
-          color="green"
+          color="emerald"
         />
         <StatCard
-          icon={<PlayCircle size={24} />}
+          icon={<PlayCircle size={20} />}
           label="実行回数"
           value={stats.jobs}
           color="purple"
         />
         <StatCard
-          icon={<Clock size={24} />}
+          icon={<Clock size={20} />}
           label="最終実行"
           value={stats.lastRun ? formatDate(stats.lastRun) : '-'}
-          color="orange"
+          isDate
         />
       </div>
 
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl shadow-md p-6 border border-blue-100">
-        <h2 className="text-xl font-bold mb-4 text-gray-800">クイックスタート</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <QuickStartCard number={1} text="「企業管理」で調査対象の企業を登録" />
-          <QuickStartCard number={2} text="「設定」で検索期間を設定" />
-          <QuickStartCard number={3} text="「実行管理」でジョブを開始" />
-          <QuickStartCard number={4} text="「収集記事」で結果を確認" />
+      {analysis && (analysis.by_category.length > 0 || analysis.by_business_area.length > 0) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <DataCard
+            title="カテゴリ別"
+            icon={<TrendingUp size={16} />}
+            items={analysis.by_category.slice(0, 6)}
+          />
+          <DataCard
+            title="業務領域別"
+            icon={<TrendingUp size={16} />}
+            items={analysis.by_business_area.slice(0, 6)}
+          />
         </div>
-      </div>
+      )}
 
-      <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-        <h2 className="text-xl font-bold mb-6 text-gray-800">分析データ（記事数）</h2>
-        {analysis ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <BarChartCard title="カテゴリ別" items={analysis.by_category} />
-            <BarChartCard title="業務領域別" items={analysis.by_business_area} />
-            <BarChartCard title="地域別" items={analysis.by_region} />
-            <LineChartCard
-              title="時系列推移（月別）"
-              items={analysis.by_month.map((item) => ({
-                label: item.period,
-                count: item.count,
-              }))}
-            />
-          </div>
-        ) : (
-          <div className="text-center py-8 text-gray-500">分析データがありません</div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function QuickStartCard({ number, text }: { number: number; text: string }) {
-  return (
-    <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-      <div className="flex items-start gap-3">
-        <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-sm">
-          {number}
+      {analysis && analysis.by_month.length > 0 && (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <TrendingUp size={16} className="text-blue-500" />
+            時系列推移
+          </h3>
+          <TimelineChart items={analysis.by_month.slice(-12)} />
         </div>
-        <p className="text-sm text-gray-700 leading-relaxed">{text}</p>
-      </div>
+      )}
     </div>
   );
 }
@@ -141,69 +126,69 @@ function StatCard({
   label,
   value,
   color,
+  isDate = false,
 }: {
   icon: React.ReactNode;
   label: string;
   value: string | number;
-  color: 'blue' | 'green' | 'purple' | 'orange' | 'emerald';
+  color?: 'blue' | 'emerald' | 'purple';
+  isDate?: boolean;
 }) {
-  const colorClasses = {
-    blue: 'bg-blue-500 text-white',
-    green: 'bg-green-500 text-white',
-    purple: 'bg-purple-500 text-white',
-    orange: 'bg-orange-500 text-white',
-    emerald: 'bg-emerald-500 text-white',
-  };
-
-  const gradientClasses = {
-    blue: 'from-blue-50 to-blue-100',
-    green: 'from-green-50 to-green-100',
-    purple: 'from-purple-50 to-purple-100',
-    orange: 'from-orange-50 to-orange-100',
-    emerald: 'from-emerald-50 to-emerald-100',
+  const iconColors = {
+    blue: 'text-blue-600 bg-blue-50',
+    emerald: 'text-emerald-600 bg-emerald-50',
+    purple: 'text-purple-600 bg-purple-50',
   };
 
   return (
-    <div className={`bg-gradient-to-br ${gradientClasses[color]} rounded-xl shadow-lg p-6 border border-gray-100 hover:shadow-xl transition-all hover:-translate-y-1`}>
-      <div className="flex items-center gap-4">
-        <div className={`p-3 ${colorClasses[color]} rounded-lg shadow-md`}>{icon}</div>
-        <div>
-          <p className="text-gray-600 text-sm font-medium">{label}</p>
-          <p className="text-3xl font-bold text-gray-800 mt-1">{value}</p>
+    <div className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-sm transition-shadow">
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <p className="text-xs text-gray-500 font-medium mb-3">{label}</p>
+          <p className={`${isDate ? 'text-lg' : 'text-2xl'} font-bold text-gray-900`}>
+            {value}
+          </p>
         </div>
+        {color && (
+          <div className={`p-2 rounded-lg ${iconColors[color]}`}>
+            {icon}
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function BarChartCard({
+function DataCard({
   title,
+  icon,
   items,
 }: {
   title: string;
+  icon: React.ReactNode;
   items: { label: string; count: number }[];
 }) {
-  const trimmedItems = items.slice(0, 8);
-  const maxValue = Math.max(...trimmedItems.map((item) => item.count), 1);
+  const maxValue = Math.max(...items.map((item) => item.count), 1);
+
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-      <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <div className="w-1 h-5 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+        <span className="text-blue-500">{icon}</span>
         {title}
       </h3>
-      {trimmedItems.length === 0 ? (
-        <div className="text-sm text-gray-500 text-center py-4">データなし</div>
+      {items.length === 0 ? (
+        <div className="text-sm text-gray-400 text-center py-8">データなし</div>
       ) : (
-        <div className="space-y-3 text-sm">
-          {trimmedItems.map((item) => (
-            <div key={item.label} className="group">
-              <div className="flex justify-between text-gray-600 mb-1.5">
-                <span className="truncate font-medium">{item.label}</span>
-                <span className="font-bold text-gray-800 ml-2">{item.count}</span>
+        <div className="space-y-3">
+          {items.map((item) => (
+            <div key={item.label}>
+              <div className="flex justify-between items-baseline mb-1.5">
+                <span className="text-sm text-gray-700 truncate">{item.label}</span>
+                <span className="text-sm font-semibold text-gray-900 ml-3">{item.count}</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+              <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
                 <div
-                  className="bg-gradient-to-r from-emerald-400 to-emerald-600 h-2.5 rounded-full transition-all duration-500 group-hover:from-emerald-500 group-hover:to-emerald-700"
+                  className="bg-blue-500 h-1.5 rounded-full transition-all duration-300"
                   style={{ width: `${(item.count / maxValue) * 100}%` }}
                 />
               </div>
@@ -215,81 +200,35 @@ function BarChartCard({
   );
 }
 
-function LineChartCard({
-  title,
+function TimelineChart({
   items,
 }: {
-  title: string;
-  items: { label: string; count: number }[];
+  items: { period: string; count: number }[];
 }) {
   if (items.length === 0) {
-    return (
-      <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-5 shadow-sm">
-        <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <div className="w-1 h-5 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
-          {title}
-        </h3>
-        <div className="text-sm text-gray-500 text-center py-4">データなし</div>
-      </div>
-    );
+    return <div className="text-sm text-gray-400 text-center py-8">データなし</div>;
   }
 
   const maxValue = Math.max(...items.map((item) => item.count), 1);
-  const chartWidth = 320;
-  const chartHeight = 140;
-  const padding = 20;
-  const step = items.length > 1 ? (chartWidth - padding * 2) / (items.length - 1) : 0;
-
-  const points = items
-    .map((item, index) => {
-      const x = padding + step * index;
-      const y = padding + (1 - item.count / maxValue) * (chartHeight - padding * 2);
-      return `${x},${y}`;
-    })
-    .join(' ');
 
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow">
-      <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">
-        <div className="w-1 h-5 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full" />
-        {title}
-      </h3>
-      <svg
-        width="100%"
-        height={chartHeight}
-        viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-        className="mb-4"
-      >
-        <defs>
-          <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#3b82f6" />
-            <stop offset="100%" stopColor="#8b5cf6" />
-          </linearGradient>
-        </defs>
-        <polyline
-          fill="none"
-          stroke="url(#lineGradient)"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          points={points}
-        />
-        {items.map((item, index) => {
-          const x = padding + step * index;
-          const y = padding + (1 - item.count / maxValue) * (chartHeight - padding * 2);
-          return (
-            <g key={item.label}>
-              <circle cx={x} cy={y} r="4" fill="white" stroke="#3b82f6" strokeWidth="2" />
-              <circle cx={x} cy={y} r="2" fill="#3b82f6" />
-            </g>
-          );
-        })}
-      </svg>
-      <div className="grid grid-cols-2 gap-2 text-xs text-gray-600 max-h-32 overflow-y-auto">
-        {items.map((item) => (
-          <div key={item.label} className="flex justify-between py-1">
-            <span className="truncate font-medium">{item.label}</span>
-            <span className="font-bold text-gray-800 ml-2">{item.count}</span>
+    <div>
+      <div className="flex items-end justify-between h-48 gap-2 pb-12">
+        {items.map((item, index) => (
+          <div key={index} className="flex-1 flex flex-col items-center justify-end h-full group relative">
+            <div className="w-full h-full flex items-end">
+              <div
+                className="w-full bg-blue-500 rounded-t hover:bg-blue-600 transition-all cursor-pointer"
+                style={{ height: `${(item.count / maxValue) * 100}%` }}
+              >
+                <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap transition-opacity z-10">
+                  {item.count}件
+                </div>
+              </div>
+            </div>
+            <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 text-[10px] font-semibold text-gray-900 transform -rotate-45 whitespace-nowrap" style={{ textShadow: '0 0 3px white, 0 0 3px white, 0 0 3px white' }}>
+              {item.period}
+            </div>
           </div>
         ))}
       </div>
