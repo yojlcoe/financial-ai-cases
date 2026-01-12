@@ -177,6 +177,16 @@ class ResearchAgent:
             title = item.get("title", "")
             logger.info(f"[ITEM {idx}/{len(items)}] Processing: {title[:50]}...")
 
+            # リスト記事のURLパターンチェック
+            if self._is_list_article_url(raw_url):
+                logger.info(f"[ITEM {idx}/{len(items)}] Skipped: list article URL pattern detected")
+                continue
+
+            # 信頼性の低いソースチェック
+            if self._is_unreliable_source(raw_url):
+                logger.info(f"[ITEM {idx}/{len(items)}] Skipped: unreliable source detected")
+                continue
+
             normalized_url = self._normalize_url(raw_url)
             if not normalized_url:
                 logger.info(f"[ITEM {idx}/{len(items)}] Skipped: invalid URL")
@@ -494,6 +504,85 @@ class ResearchAgent:
             logger.info(f"Saved article: {title}")
 
         return article
+
+    def _is_list_article_url(self, url: str) -> bool:
+        """リスト記事・まとめ記事のURLパターンを検出
+
+        実際のデータベース分析から抽出したパターンに基づく
+
+        Args:
+            url: チェック対象URL
+
+        Returns:
+            リスト記事の場合True
+        """
+        if not url:
+            return False
+
+        url_lower = url.lower()
+
+        # 実データから抽出したリスト記事のパターン
+        list_patterns = [
+            '/tags/',       # https://www.ncblibrary.com/tags/247
+            '/tag/',        # https://tech.eu/tag/agentic-ai
+            '/theme/',      # https://xtech.nikkei.com/theme/ai
+            '/keyword/',    # https://www.yomiuri.co.jp/keyword/135446
+            '/category/',   # https://mobiili.fi/category/muut
+            '/corner/',     # https://markezine.jp/article/corner/1164
+            '/case',        # https://www.consulting-headwaters.co.jp/case (事例一覧)
+            '/events',      # https://whatson.cityofsydney.nsw.gov.au/events
+            '/insights',    # https://www.expat.hsbc.com/wealth/insights
+        ]
+
+        for pattern in list_patterns:
+            if pattern in url_lower:
+                return True
+
+        # ドメインルート（パスが / のみ、またはパスなし）
+        # 例: https://www.headwaters.co.jp/, https://made-in-europe.nu/
+        try:
+            parts = urlsplit(url)
+            path = parts.path or "/"
+            # ルートドメインまたは / のみ
+            if path == "/" or path == "":
+                return True
+        except ValueError:
+            pass
+
+        return False
+
+    def _is_unreliable_source(self, url: str) -> bool:
+        """信頼性の低いソースドメインを検出
+
+        個人ブログなど信頼性が不明なソースをフィルタ
+        実データから抽出
+
+        Args:
+            url: チェック対象URL
+
+        Returns:
+            信頼性が低い場合True
+        """
+        if not url:
+            return False
+
+        try:
+            parts = urlsplit(url)
+            domain = parts.netloc.lower()
+        except ValueError:
+            return False
+
+        # 実データから確認された個人ブログドメイン
+        unreliable_domains = [
+            'note.com',    # 日本の個人ブログ (10件確認)
+            'medium.com',  # 個人ブログ (10件確認)
+        ]
+
+        for unreliable in unreliable_domains:
+            if unreliable in domain:
+                return True
+
+        return False
 
     def _normalize_url(self, url: str) -> str:
         """重複排除用にURLを正規化（追跡パラメータ除去 + フラグメント削除）"""
