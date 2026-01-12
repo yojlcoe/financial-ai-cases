@@ -135,6 +135,10 @@ export default function ArticlesPage() {
     return companies.find((c) => c.id === companyId)?.name || '不明';
   };
 
+  const getCompanyCountry = (companyId: number) => {
+    return companies.find((c) => c.id === companyId)?.country || '';
+  };
+
   const startEdit = (article: Article) => {
     setEditingArticle(article);
     setEditValues({
@@ -264,13 +268,14 @@ export default function ArticlesPage() {
       const allArticlesRes = await getArticles(params);
       const allArticles = allArticlesRes.items;
 
-      const headers = ['ID', '企業名', 'タイトル', 'URL', '公開日', 'カテゴリ', 'ビジネス領域', 'タグ', 'サマリー'];
+      const headers = ['ID', '企業名', '国', 'タイトル', 'URL', '公開日', 'カテゴリ', 'ビジネス領域', 'タグ', 'サマリー'];
       const csvContent = [
         headers.join(','),
         ...allArticles.map((article) => {
           const row = [
             article.id,
             `"${getCompanyName(article.company_id).replace(/"/g, '""')}"`,
+            `"${getCompanyCountry(article.company_id).replace(/"/g, '""')}"`,
             `"${(article.title || '').replace(/"/g, '""')}"`,
             `"${article.url.replace(/"/g, '""')}"`,
             article.published_date || '',
