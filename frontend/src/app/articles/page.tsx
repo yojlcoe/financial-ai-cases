@@ -228,35 +228,75 @@ export default function ArticlesPage() {
     }
   };
 
-  const downloadCSV = () => {
-    const headers = ['ID', '企業名', 'タイトル', 'URL', '公開日', 'カテゴリ', 'ビジネス領域', 'タグ'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredArticles.map((article) => {
-        const row = [
-          article.id,
-          `"${getCompanyName(article.company_id).replace(/"/g, '""')}"`,
-          `"${(article.title || '').replace(/"/g, '""')}"`,
-          `"${article.url.replace(/"/g, '""')}"`,
-          article.published_date || '',
-          `"${(article.category || '').replace(/"/g, '""')}"`,
-          `"${(article.business_area || '').replace(/"/g, '""')}"`,
-          `"${(article.tags || '').replace(/"/g, '""')}"`,
-        ];
-        return row.join(',');
-      }),
-    ].join('\n');
+  const downloadCSV = async () => {
+    try {
+      // フィルター条件で全記事を取得（limit=10000で全件取得）
+      const params: Record<string, string> = {
+        skip: '0',
+        limit: '10000',
+      };
 
-    const bom = '\uFEFF';
-    const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `articles_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      if (selectedCompany) {
+        params.company_id = selectedCompany;
+      }
+      if (selectedCategory) {
+        params.category = selectedCategory;
+      }
+      if (selectedBusinessArea) {
+        params.business_area = selectedBusinessArea;
+      }
+      if (selectedTag) {
+        params.tags = selectedTag;
+      }
+      if (startDate) {
+        params.start_date = startDate;
+      }
+      if (endDate) {
+        params.end_date = endDate;
+      }
+      if (includeUnknownDates) {
+        params.include_unknown_dates = 'true';
+      }
+      if (reviewStatus !== '') {
+        params.is_reviewed = reviewStatus;
+      }
+
+      const allArticlesRes = await getArticles(params);
+      const allArticles = allArticlesRes.items;
+
+      const headers = ['ID', '企業名', 'タイトル', 'URL', '公開日', 'カテゴリ', 'ビジネス領域', 'タグ', 'サマリー'];
+      const csvContent = [
+        headers.join(','),
+        ...allArticles.map((article) => {
+          const row = [
+            article.id,
+            `"${getCompanyName(article.company_id).replace(/"/g, '""')}"`,
+            `"${(article.title || '').replace(/"/g, '""')}"`,
+            `"${article.url.replace(/"/g, '""')}"`,
+            article.published_date || '',
+            `"${(article.category || '').replace(/"/g, '""')}"`,
+            `"${(article.business_area || '').replace(/"/g, '""')}"`,
+            `"${(article.tags || '').replace(/"/g, '""')}"`,
+            `"${(article.summary || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+          ];
+          return row.join(',');
+        }),
+      ].join('\n');
+
+      const bom = '\uFEFF';
+      const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `articles_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Failed to download CSV:', error);
+      alert('CSVのダウンロードに失敗しました');
+    }
   };
 
   const addUrlField = () => {
