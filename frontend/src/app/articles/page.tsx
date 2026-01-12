@@ -287,8 +287,9 @@ export default function ArticlesPage() {
       const blob = new Blob([bom + csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
+      const timestamp = new Date().toISOString().replace(/:/g, '-').replace(/\..+/, '');
       link.setAttribute('href', url);
-      link.setAttribute('download', `articles_${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `articles_${timestamp}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
