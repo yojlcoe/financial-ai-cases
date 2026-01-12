@@ -61,7 +61,10 @@ out/
 *.tsbuildinfo
 
 # Docker volumes data
-data/
+data/*
+!data/reports/
+data/reports/*
+!data/reports/*.md
 postgres_data/
 ollama_models/
 
