@@ -11,7 +11,7 @@ class Article(Base):
     title = Column(String(500), nullable=False)
     content = Column(Text, nullable=True)
     summary = Column(Text, nullable=True)
-    url = Column(String(500), nullable=False, unique=True)
+    url = Column(Text, nullable=False, unique=True)
     published_date = Column(Date, nullable=True)
     category = Column(String(100), nullable=True)
     business_area = Column(String(100), nullable=True)

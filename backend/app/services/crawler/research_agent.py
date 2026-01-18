@@ -483,27 +483,62 @@ class ResearchAgent:
 
         # DBに保存
         from app.schemas import ArticleCreate
+        from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+
+        # タグを500文字以内に切り詰め
+        tags_str = ",".join(classify_data.get("tags", []))
+        if len(tags_str) > 500:
+            logger.warning(f"[WARN] Tags too long ({len(tags_str)} chars), truncating to 500: {title}")
+            tags_str = tags_str[:500]
+
+        # タイトルを500文字以内に切り詰め
+        article_title = article_data.get("title", title)
+        if len(article_title) > 500:
+            logger.warning(f"[WARN] Title too long ({len(article_title)} chars), truncating to 500: {title}")
+            article_title = article_title[:500]
+
         article_create = ArticleCreate(
             company_id=company.id,
-            title=article_data.get("title", title),
+            title=article_title,
             content=content[:5000],
             summary=summary_text,
             url=normalized_url,
             published_date=pub_date,
             category=classify_data.get("category", "その他"),
             business_area=classify_data.get("business_area", "その他"),
-            tags=",".join(classify_data.get("tags", [])),
+            tags=tags_str,
             is_inappropriate=is_inappropriate,
             inappropriate_reason=inappropriate_reason,
         )
 
-        article = await crud_article.create_article(db, article_create)
-        if is_inappropriate:
-            logger.info(f"Saved inappropriate article: {title}")
-        else:
-            logger.info(f"Saved article: {title}")
-
-        return article
+        try:
+            article = await crud_article.create_article(db, article_create)
+            if is_inappropriate:
+                logger.info(f"Saved inappropriate article: {title}")
+            else:
+                logger.info(f"Saved article: {title}")
+            return article
+        except IntegrityError as e:
+            # 重複エラー（UNIQUE制約違反）の場合
+            logger.warning(f"[DB ERROR] Duplicate article detected, skipping: {title} - {str(e)[:200]}")
+            await db.rollback()
+            # ロールバック後、companyオブジェクトを再アタッチ
+            await db.refresh(company)
+            return None
+        except SQLAlchemyError as e:
+            # その他のデータベースエラー
+            logger.error(f"[DB ERROR] Failed to save article, skipping: {title} - {str(e)[:200]}")
+            await db.rollback()
+            # ロールバック後、companyオブジェクトを再アタッチ
+            await db.refresh(company)
+            return None
+        except Exception as e:
+            # 予期しないエラー
+            logger.error(f"[UNEXPECTED ERROR] Failed to save article: {title} - {str(e)[:200]}")
+            await db.rollback()
+            # ロールバック後、companyオブジェクトを再アタッチ
+            await db.refresh(company)
+            return None
 
     def _is_list_article_url(self, url: str) -> bool:
         """リスト記事・まとめ記事のURLパターンを検出
